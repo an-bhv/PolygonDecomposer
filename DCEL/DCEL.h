@@ -1,10 +1,3 @@
-#include <bits/stdc++.h>
-
-using namespace std;
-
-class vertex;
-class edge;
-class face;
 
 class vertex
 {
@@ -53,8 +46,3 @@ class face
         inc_edge = e;
     }
 };
-
-int main()
-{
-    ;
-}

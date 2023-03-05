@@ -1,8 +1,11 @@
 #include <bits/stdc++.h>
+#include "DCEL.h"
 
 
 int main(){
 
+    freopen()
+    
     dcel = DCEL();
 
     vector<chain> L; //worry about initialization later

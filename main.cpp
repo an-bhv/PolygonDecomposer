@@ -45,6 +45,7 @@ bool check_collinear(vertex* v0,vertex* v1,vertex* v2){
 	return (((v2->y - v0->y)*(v1->x - v0->x) - (v1->y - v0->y)*(v2->x - v0->x)) == 0);
 }
 
+
 set<vertex*> obtain_notches(vertex* v){
 	edge* e0 = v->inc_edge;
 	edge* prev_edge = e0;
@@ -108,15 +109,13 @@ int main(){
 		vertex* v2 = v1->inc_edge->dest;
 
 		cur_pol = {v1,v2};
-		int sz =2;
 
 		vertex* candidate = v2->inc_edge->dest;
 
 		int xmin = min(v1->x,v2->x),xmax = min(v1->x,v2->x), ymin = min(v1->y,v2->y), ymax = max(v1->y,v2->y);
 
-		while(!check_reflex(cur_pol[sz-2],cur_pol[sz-1],candidate) && !check_reflex(cur_pol[sz-1],candidate,v1) && !check_reflex(candidate,v1,v2) && sz<n){
+		while(!check_reflex(cur_pol[cur_pol.size()-2],cur_pol[cur_pol.size()-1],candidate) && !check_reflex(cur_pol[cur_pol.size()-1],candidate,v1) && !check_reflex(candidate,v1,v2) && cur_pol.size()<n){
 			cur_pol.push_back(candidate);
-			sz++;
 			xmin = min(xmin, candidate->x); 
 			xmax = max(xmax, candidate->x);
 			ymin = min(ymin, candidate->y); 
@@ -125,28 +124,64 @@ int main(){
 			candidate = candidate->inc_edge->dest;
 		}
 
-		if(sz!=n){
+		if(cur_pol.size()!=n){
 			vector<vertex*> LPVS;
 			for(auto notch: notches) LPVS.push_back(notch);
 
 			while(!LPVS.empty()){
-				bool backwards = false;
-				while(!backwards && !LPVS.empty()){
-					vertex* notch = LPVS.back();
-					if(notch->x <= xmax && notch->x >= xmin && notch->y <= ymax && notch->y >= ymin){
-						break;
+				// bool backwards = false;
+				// while(!backwards && !LPVS.empty()){
+				// 	vertex* notch = LPVS.back();
+				// 	if(notch->x <= xmax && notch->x >= xmin && notch->y <= ymax && notch->y >= ymin){
+				// 		break;
+				// 	}
+				// 	LPVS.pop_back();
+				// }
+
+
+				// if(!LPVS.empty()){
+				// 	vertex* notch = LPVS.back();
+				// 	if(check_in_pol(cur_pol,notch)){
+				// 		while(!cur_pol.empty() && (check_reflex(v1,notch,cur_pol.back()) || check_collinear(v1,notch,cur_pol.back()))){
+				// 			cur_pol.pop_back();
+				// 		}
+				// 		backwards = true;
+				// 	}
+
+				// 	LPVS.pop_back();
+				// }
+
+				vertex* notch = LPVS.back();
+				if(notch->x <= xmax && notch->x >= xmin && notch->y <= ymax && notch->y >= ymin){
+					if(check_in_pol(cur_pol,notch)){
+						bool side = check_reflex(cur_pol.back(),notch,v1);
+						while(!cur_pol.empty() && (check_reflex(cur_pol.back(),notch,v1)==side || check_collinear(cur_pol.back(),notch,v1))){
+							cur_pol.pop_back();
+						}
 					}
-					LPVS.pop_back();
 				}
-
-
-				if(!LPVS.empty()){
-					vertex* notch = LPVS.back();
-
-				}
-
+				LPVS.pop_back();
 			}
 		}
+		// delete notch if there
+
+		if(cur_pol.back()!=v2){
+			//TODO: add edge
+			edge* new_edge = edge::create_edge(cur_pol.back(),v1);
+			
+			new_edge->twin->next = cur_pol.back()->inc_edge;
+			new_edge->twin->prev = v1->inc_edge->prev;
+			v1->inc_edge->prev->next = new_edge->twin;
+			cur_pol.back()->inc_edge->prev = new_edge->twin;
+			//add current face to new edge
+			new_edge->left = v1->inc_edge->left;
+			
+			face* new_face = new face(new_edge->twin);
+			
+			n = n - cur_pol.size() + 2;
+		}
+
+		prev_pol = cur_pol;
 
 	}
 

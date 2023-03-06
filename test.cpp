@@ -1,5 +1,7 @@
-#include<bits/stdc++.h>
-#include "dcl.h"
+#include<iostream>
+#include<stdio.h>
+#include<vector>
+#include "dcel.h"
 
 using namespace std;
 using dcel::edge;
@@ -88,20 +90,13 @@ bool check_in_pol(vector<vertex*> &cur_pol , vertex* point){
 }
 
 int main(){
-		cout << "main\n";
-    freopen("input.txt","r", stdin);
+	freopen("input.txt", "r", stdin);
 	int n;std::cin>>n; //number of points
 	std::vector<pair<int,int>> vertices(n);
 	int x, y;
-	vector <vertex*> cur_pol(n);
 	for(int i=0;i<n;i++){
-		//cin>>vertices[i].first>>vertices[i].second;
-		cin >> x >> y;
-		cur_pol[i] = new vertex(x, y);
+		cin>>vertices[i].first>>vertices[i].second;
 	}
-	//vertex* v0 = build(vertices,n);
-	cout << "input done\n";
-	vertex* point = new vertex(10, 10);
-    cout << check_in_pol(cur_pol, point);
+	vertex* v0 = build(vertices,n);
     return 0;
 }

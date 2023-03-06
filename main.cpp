@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#include "dcl.h"
+#include "dcel.h"
 
 using namespace std;
 using dcel::edge;
@@ -21,6 +21,7 @@ vertex* build(vector<pair<int,int>>& inp,int n){
 		// prevedge->next = e;
 		// e->prev = prevedge;
 		edge::link_edge(prevedge,e);
+		edge::link_edge(e->twin,prevedge->twin);
 		prev->inc_edge = e; 
 		prev = v;
 		prevedge = e;
@@ -29,7 +30,9 @@ vertex* build(vector<pair<int,int>>& inp,int n){
 	
 	edge* e = edge::create_edge(prev,v0);
 	edge::link_edge(prevedge,e);
+	edge::link_edge(e->twin,prevedge->twin);
 	edge::link_edge(e,e0);        
+	edge::link_edge(e0->twin,e->twin);        
 	prev->inc_edge = e;
 	face* f1 = new face(e0);
 	face* f2 = new face(e0->twin);
@@ -89,6 +92,7 @@ bool check_in_pol(vector<vertex*> &cur_pol , vertex* point){
 }
 
 
+
 int main(){
 
 	freopen("input.txt","r", stdin);
@@ -103,6 +107,9 @@ int main(){
 	prev_pol.push_back(v0);
 
 	set<vertex*> notches = obtain_notches(v0);
+
+	vector<face*> faces;
+
 
 	while(n>3){
 		vertex* v1 = prev_pol.back();
@@ -129,28 +136,6 @@ int main(){
 			for(auto notch: notches) LPVS.push_back(notch);
 
 			while(!LPVS.empty()){
-				// bool backwards = false;
-				// while(!backwards && !LPVS.empty()){
-				// 	vertex* notch = LPVS.back();
-				// 	if(notch->x <= xmax && notch->x >= xmin && notch->y <= ymax && notch->y >= ymin){
-				// 		break;
-				// 	}
-				// 	LPVS.pop_back();
-				// }
-
-
-				// if(!LPVS.empty()){
-				// 	vertex* notch = LPVS.back();
-				// 	if(check_in_pol(cur_pol,notch)){
-				// 		while(!cur_pol.empty() && (check_reflex(v1,notch,cur_pol.back()) || check_collinear(v1,notch,cur_pol.back()))){
-				// 			cur_pol.pop_back();
-				// 		}
-				// 		backwards = true;
-				// 	}
-
-				// 	LPVS.pop_back();
-				// }
-
 				vertex* notch = LPVS.back();
 				if(notch->x <= xmax && notch->x >= xmin && notch->y <= ymax && notch->y >= ymin){
 					if(check_in_pol(cur_pol,notch)){
@@ -163,27 +148,23 @@ int main(){
 				LPVS.pop_back();
 			}
 		}
-		// delete notch if there
+
 
 		if(cur_pol.back()!=v2){
-			//TODO: add edge
-			edge* new_edge = edge::create_edge(cur_pol.back(),v1);
-			
-			new_edge->twin->next = cur_pol.back()->inc_edge;
-			new_edge->twin->prev = v1->inc_edge->prev;
-			v1->inc_edge->prev->next = new_edge->twin;
-			cur_pol.back()->inc_edge->prev = new_edge->twin;
-			//add current face to new edge
-			new_edge->left = v1->inc_edge->left;
-			
-			face* new_face = new face(new_edge->twin);
-			
+			notches.erase(cur_pol.back());
+			edge::add_edge(cur_pol.back(),v1);
+			faces.push_back(v1->inc_edge->left);
 			n = n - cur_pol.size() + 2;
 		}
 
 		prev_pol = cur_pol;
 
 	}
+
+
+
+	//go through all faces and make an adjacency list
+
 
 
 }

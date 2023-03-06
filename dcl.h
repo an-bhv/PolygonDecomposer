@@ -80,40 +80,7 @@ namespace dcel{
     };
 
 
-    //reads polygon file and build dcel, return pointer to first vertex
-    vertex* build(const char* path){
-        freopen(path,"r", stdin);
-        int n;std::cin>>n; //number of points
-        int x,y;std::cin>>x>>y;
-        vertex* prev = new vertex(x,y);
-        vertex* v0 = prev;
-        cin>>x>>y;
-        prev = new vertex(x,y);
-        edge* prevedge = edge::create_edge(v0,prev);
-		edge* e0 = prevedge;
-		v0->inc_edge = e0;
-        for(int i=2;i<n;i++){
-            cin>>x>>y;
-            vertex* v = new vertex(x,y);
-            edge* e = edge::create_edge(prev,v);
-            // prevedge->next = e;
-            // e->prev = prevedge;
-			edge::link_edge(prevedge,e);
-            prev->inc_edge = e; 
-            prev = v;
-            prevedge = e;
-			 
-        }
-		
-        edge* e = edge::create_edge(prev,v0);
-		edge::link_edge(prevedge,e);
-		edge::link_edge(e,e0);        
-		prev->inc_edge = e;
-		face* f1 = new face(e0);
-		face* f2 = new face(e0->twin);
 
-        return v0;
-    }
 }
 
 

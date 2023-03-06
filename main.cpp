@@ -1,74 +1,154 @@
 #include <bits/stdc++.h>
-#include "DCEL.h"
+#include "dcl.h"
+
+using namespace std;
+using dcel::edge;
+using dcel::vertex;
+using dcel::face;
+
+//reads polygon file and build dcel, return pointer to first vertex
+vertex* build(vector<pair<int,int>>& inp,int n){
+
+	vertex* prev = new vertex(inp[0].first,inp[0].second);
+	vertex* v0 = prev;
+	prev = new vertex(inp[1].first,inp[1].second);
+	edge* prevedge = edge::create_edge(v0,prev);
+	edge* e0 = prevedge;
+	v0->inc_edge = e0;
+	for(int i=2;i<n;i++){
+		vertex* v = new vertex(inp[i].first,inp[i].second);
+		edge* e = edge::create_edge(prev,v);
+		// prevedge->next = e;
+		// e->prev = prevedge;
+		edge::link_edge(prevedge,e);
+		prev->inc_edge = e; 
+		prev = v;
+		prevedge = e;
+			
+	}
+	
+	edge* e = edge::create_edge(prev,v0);
+	edge::link_edge(prevedge,e);
+	edge::link_edge(e,e0);        
+	prev->inc_edge = e;
+	face* f1 = new face(e0);
+	face* f2 = new face(e0->twin);
+
+	return v0;
+}
+
+bool check_reflex(vertex* v0,vertex* v1,vertex* v2){
+	return (((v2->y - v0->y)*(v1->x - v0->x) - (v1->y - v0->y)*(v2->x - v0->x)) > 0);
+}
+
+bool check_collinear(vertex* v0,vertex* v1,vertex* v2){
+	return (((v2->y - v0->y)*(v1->x - v0->x) - (v1->y - v0->y)*(v2->x - v0->x)) == 0);
+}
+
+set<vertex*> obtain_notches(vertex* v){
+	edge* e0 = v->inc_edge;
+	edge* prev_edge = e0;
+	edge* e = v->inc_edge->next;
+	set<vertex*> notches;
+
+	while(true){
+		if(check_reflex(prev_edge->org,e->org,e->dest)){
+			notches.insert(e->org);
+		}
+        prev_edge = e;
+		e = e->next;
+        if(e==e0) break;
+	}
+
+	return notches;
+}
+
+
+bool check_in_pol(vector<vertex*> &cur_pol , vertex* point){
+	int num_intersect = 0;
+	int ymin, ymax;
+	vertex* a;
+	vertex* b;
+	for(int i=0; i<cur_pol.size(); i++){
+		a = cur_pol[i];
+		b = cur_pol[(i+1)%cur_pol.size()];
+		if(a->y > b->y){
+			swap(a,b);
+		}
+		if(a->y <= point->y && b->y > point->y && !check_reflex(a, b, point)){
+			num_intersect++;
+			cout << i << endl;
+			if(check_collinear(cur_pol[i], cur_pol[i+1], point)){
+				return true;
+			}
+		}
+			
+	}
+	return num_intersect%2 == 1;
+}
 
 
 int main(){
 
-    freopen()
-    
-    dcel = DCEL();
+	freopen("input.txt","r", stdin);
+	int n;std::cin>>n; //number of points
+	std::vector<pair<int,int>> vertices(n);
+	for(int i=0;i<n;i++){
+		cin>>vertices[i].first>>vertices[i].second;
+	}
+	vertex* v0 = build(vertices,n);
 
-    vector<chain> L; //worry about initialization later
+	std::vector<vertex*> prev_pol,cur_pol;
+	prev_pol.push_back(v0);
 
-    //i want to know number of vertices in polygon
-    int n = dcel.size();
-    int m = 1;
-    L[0] = {dcel.front()};
+	set<vertex*> notches = obtain_notches(v0);
 
-    while(n>3){
-        vertex v1 = L[m-1].back();
-        vertex v2 = v1.next;
+	while(n>3){
+		vertex* v1 = prev_pol.back();
+		vertex* v2 = v1->inc_edge->dest;
 
-        L[m] = {v1,v2};
-        
-        vector<vertex> cur = {v1,v2,v2.next};
+		cur_pol = {v1,v2};
+		int sz =2;
 
-        //ang will return true if angle<=180 
-        while(ang(cur[0],cur[1],cur[2]) && ang(cur[1],cur[2],v1) && ang(cur[2],v1,v2) && (int)L.size()<n){
-            L[m].add(cur[2]);
-            cur[0] = cur[1];
-            cur[1] = cur[2];
-            cur[2] = cur[1].next;
-        }
+		vertex* candidate = v2->inc_edge->dest;
 
-        if((int)L.size() != (int)dcel.size()){
-            vector<vertex> LPVS = dcel.getLPVS(); //list of all notches
-            while(LPVS>0){
-                //we can make L[m] a class,in which we have the info of smallest rectangle bounding it 
-                vector<pair<int,int>> box = L[m].boundingBox();
-                bool Backward = false;
-                auto check = [&](vectex v){
-                    //check if in box
-                };
-                while(!Backward and LPVS.size()){
-                    while(LPVS.size()){
-                        vertex v = LPVS.back();
-                        if(check(v)) break;
-                        LPVS.pop_back();
-                    }
-                    if(LPVS.size()){
-                        vertex v = LPVS.back();
-                        if(L[m].find(v)){
-                            while(!L[m].checkSide(v,L[m].back())){//checkside will use cross product
-                                L[m].pop_back();
-                            }  
-                            Backward = true;
-                            LPVS.pop_back();
-                        }
-                    }
-                }
+		int xmin = min(v1->x,v2->x),xmax = min(v1->x,v2->x), ymin = min(v1->y,v2->y), ymax = max(v1->y,v2->y);
 
-            }
-        }
+		while(!check_reflex(cur_pol[sz-2],cur_pol[sz-1],candidate) && !check_reflex(cur_pol[sz-1],candidate,v1) && !check_reflex(candidate,v1,v2) && sz<n){
+			cur_pol.push_back(candidate);
+			sz++;
+			xmin = min(xmin, candidate->x); 
+			xmax = max(xmax, candidate->x);
+			ymin = min(ymin, candidate->y); 
+			ymax = max(ymax, candidate->y);
 
-        if(L[m].back()!=v2){
-            //we can either add v1 - L[m].back() edge to dcel now
-            //or store L[m] in list of polygons
-            //or remove L[m] from dcel completly, like in algo P = (P\Lm)U{first[Lm],last[Lm]}
-            n = n - L[m].size()+2;
-        }
-        m++;
-    } 
+			candidate = candidate->inc_edge->dest;
+		}
 
-    return 0;
+		if(sz!=n){
+			vector<vertex*> LPVS;
+			for(auto notch: notches) LPVS.push_back(notch);
+
+			while(!LPVS.empty()){
+				bool backwards = false;
+				while(!backwards && !LPVS.empty()){
+					vertex* notch = LPVS.back();
+					if(notch->x <= xmax && notch->x >= xmin && notch->y <= ymax && notch->y >= ymin){
+						break;
+					}
+					LPVS.pop_back();
+				}
+
+
+				if(!LPVS.empty()){
+					vertex* notch = LPVS.back();
+
+				}
+
+			}
+		}
+
+	}
+
+
 }

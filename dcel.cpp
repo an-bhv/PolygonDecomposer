@@ -33,9 +33,9 @@ void edge::add_edge(vertex* u, vertex* v){
 	edge* new_edge = edge::create_edge(u,v);
 
 	edge::link_edge(u->inc_edge->prev,new_edge);
+	edge::link_edge(v->inc_edge->prev,new_edge->twin);
 	edge::link_edge(new_edge,v->inc_edge);
 	edge::link_edge(new_edge->twin,u->inc_edge);
-	edge::link_edge(v->inc_edge->prev,new_edge->twin);
 
 	new_edge->left = v->inc_edge->left;
 	face* new_face = new face(new_edge->twin);
@@ -51,23 +51,22 @@ edge::edge(vertex *u, vertex *v)
 
 
 void face::traverse_face(){
-	inc_edge->left = this;
 	std::cout<<this<<"\n-------------\n";
 	std::cout<<inc_edge->org->x << " " << inc_edge->org->y<<", ";
 	std::cout<<inc_edge->dest->x << " " << inc_edge->dest->y <<"\n";
 	edge* e = inc_edge->next;
 	while(e!=inc_edge){
 		e->left = this;
-		e = e->next; 
 		std::cout<<e->org->x << " " << e->org->y<<", ";
 		std::cout<<e->dest->x << " " << e->dest->y <<"\n";
-
+		e = e->next; 
 	}
 }
 
 face::face(edge* e)
 {
 	inc_edge = e;
+	inc_edge->left = this;
 	traverse_face();
 }
 

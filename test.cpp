@@ -23,15 +23,18 @@ vertex* build(vector<pair<int,int>>& inp,int n){
 		// prevedge->next = e;
 		// e->prev = prevedge;
 		edge::link_edge(prevedge,e);
+		edge::link_edge(e->twin,prevedge->twin);
 		prev->inc_edge = e; 
 		prev = v;
 		prevedge = e;
 			
 	}
 	
-    edge* e = edge::create_edge(prev,v0);
+	edge* e = edge::create_edge(prev,v0);
 	edge::link_edge(prevedge,e);
+	edge::link_edge(e->twin,prevedge->twin);
 	edge::link_edge(e,e0);        
+	edge::link_edge(e0->twin,e->twin);        
 	prev->inc_edge = e;
 	face* f1 = new face(e0);
 	face* f2 = new face(e0->twin);
@@ -98,5 +101,6 @@ int main(){
 		cin>>vertices[i].first>>vertices[i].second;
 	}
 	vertex* v0 = build(vertices,n);
+	
     return 0;
 }

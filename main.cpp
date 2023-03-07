@@ -81,7 +81,6 @@ bool check_in_pol(vector<vertex*> &cur_pol , vertex* point){
 		}
 		if(a->y <= point->y && b->y > point->y && !check_reflex(a, b, point)){
 			num_intersect++;
-			cout << i << endl;
 			if(check_collinear(cur_pol[i], cur_pol[i+1], point)){
 				return true;
 			}
@@ -110,13 +109,11 @@ int main(){
 
 	vector<face*> faces;
 
-
 	while(n>3){
 		vertex* v1 = prev_pol.back();
 		vertex* v2 = v1->inc_edge->dest;
 
 		cur_pol = {v1,v2};
-
 		vertex* candidate = v2->inc_edge->dest;
 
 		int xmin = min(v1->x,v2->x),xmax = min(v1->x,v2->x), ymin = min(v1->y,v2->y), ymax = max(v1->y,v2->y);
@@ -127,41 +124,49 @@ int main(){
 			xmax = max(xmax, candidate->x);
 			ymin = min(ymin, candidate->y); 
 			ymax = max(ymax, candidate->y);
-
+			notches.erase(candidate);
 			candidate = candidate->inc_edge->dest;
 		}
 
-		if(cur_pol.size()!=n){
-			vector<vertex*> LPVS;
-			for(auto notch: notches) LPVS.push_back(notch);
+		// cout<<cur_pol.size()<<"\n";
 
-			while(!LPVS.empty()){
-				vertex* notch = LPVS.back();
-				if(notch->x <= xmax && notch->x >= xmin && notch->y <= ymax && notch->y >= ymin){
-					if(check_in_pol(cur_pol,notch)){
-						bool side = check_reflex(cur_pol.back(),notch,v1);
-						while(!cur_pol.empty() && (check_reflex(cur_pol.back(),notch,v1)==side || check_collinear(cur_pol.back(),notch,v1))){
-							cur_pol.pop_back();
-						}
+		if(cur_pol.size()==n){
+			faces.push_back(v1->inc_edge->left);
+			break;
+		}
+		vector<vertex*> LPVS;
+		for(auto notch: notches) LPVS.push_back(notch);
+		// cout<<LPVS.size()<<"huh\n";
+		while(!LPVS.empty()){
+			vertex* notch = LPVS.back();
+			if(notch->x <= xmax && notch->x >= xmin && notch->y <= ymax && notch->y >= ymin){
+				if(check_in_pol(cur_pol,notch)){
+					bool side = check_reflex(cur_pol.back(),notch,v1);
+					while(!cur_pol.empty() && (check_reflex(cur_pol.back(),notch,v1)==side || check_collinear(cur_pol.back(),notch,v1))){
+						cur_pol.pop_back();
 					}
 				}
-				LPVS.pop_back();
 			}
+			LPVS.pop_back();
 		}
-
-
+		// cout<<cur_pol.size()<<"-\n";
 		if(cur_pol.back()!=v2){
-			notches.erase(cur_pol.back());
 			edge::add_edge(cur_pol.back(),v1);
-			faces.push_back(v1->inc_edge->left);
+			face* cur_face = v1->inc_edge->left;
+			cur_face->traverse_face(); //updates the edges
+			faces.push_back(cur_face);
 			n = n - cur_pol.size() + 2;
+			// cout<<"here\n";
 		}
 
 		prev_pol = cur_pol;
 
 	}
-
-
+	cout << "\n\n\n\n";
+	for(auto f: faces) { //we n
+		cout<<f<<"*************\n";
+		f->traverse_face();
+	}
 
 	//go through all faces and make an adjacency list
 

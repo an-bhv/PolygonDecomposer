@@ -39,7 +39,7 @@ void edge::add_edge(vertex* u, vertex* v){
 
 	new_edge->left = v->inc_edge->left;
 	face* new_face = new face(new_edge->twin);
-
+	v->inc_edge = new_edge->twin;
 }
 
 edge::edge(vertex *u, vertex *v)

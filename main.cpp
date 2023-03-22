@@ -6,6 +6,10 @@ using dcel::edge;
 using dcel::vertex;
 using dcel::face;
 
+
+void print_vertex(vertex* v){
+	cout<<"{"<<v->x<<" ,"<<v->y<<"}\n";
+}
 //reads polygon file and build dcel, return pointer to first vertex
 vertex* build(vector<pair<int,int>>& inp,int n){
 
@@ -90,19 +94,26 @@ bool check_in_pol(vector<vertex*> &cur_pol , vertex* point){
 	return num_intersect%2 == 1;
 }
 
-void visualize(vector<face*> faces){
+void visualize(set<face*> faces,string name){
 
 	//list out vertices and edges
 	set<pair<int,int>> points;
 	set<array<int,4>> edges;
 	int mx =-1,mn =0;
+	// cout<<"-----VIS----\n";
 	for(auto face: faces){
 		edge* e = face->inc_edge;
+		// cout<<face<<"\n";
+		// print_vertex(e->org);
+		// print_vertex(e->dest);
 		points.insert({e->org->x,e->org->y});
 		edges.insert({e->org->x,e->org->y,e->dest->x,e->dest->y});
 		mx = max({e->org->x,e->org->y,mx});
 		e = e->next;
 		while(e!=face->inc_edge){
+			// cout<<"===\n";
+			// print_vertex(e->org);
+			// print_vertex(e->dest);
 			points.insert({e->org->x,e->org->y});
 			edges.insert({e->org->x,e->org->y,e->dest->x,e->dest->y});
 			mx = max({e->org->x,e->org->y,mx});
@@ -110,25 +121,31 @@ void visualize(vector<face*> faces){
 		}
 	}
 
+	for(auto p: points){
+		cout<<p.first<<" "<<p.second<<"\n";
+	}
+
 	//output svg file
 	ofstream out;
-	out.open("output.svg");
+	out.open(name);
 	mx +=10;
 	mn -=5;
 	out <<"<?xml version=\"1.0\" standalone=\"no\"?> \
 	<svg viewBox = \""<<mn<<" "<<mn<<" "<<mx<<" "<<mx<<"\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n";
 
 	for(auto e: edges){
-		out<<"<line x1=\""<<e[0]<<"\" y1=\""<<e[1]<<"\" x2=\""<<e[2]<<"\" y2=\""<<e[3]<<"\" stroke = \"black\" stroke-width=\"0.5\"/>\n";
+		out<<"<line x1=\""<<e[0]<<"\" y1=\""<<e[1]<<"\" x2=\""<<e[2]<<"\" y2=\""<<e[3]<<"\" stroke = \"black\" stroke-width=\"0.2\"/>\n";
 	}
 	for(auto point: points){
-		out<<"<circle cx=\""<<point.first<<"\" cy=\""<<point.second<<"\" r=\"0.5\" fill=\"red\" stroke=\"red\" stroke-width=\"0.5\"/>\n";
+		out<<"<circle cx=\""<<point.first<<"\" cy=\""<<point.second<<"\" r=\"0.2\" fill=\"red\"/>\n";
 	}
 
 	out<<"</svg>";
 	out.close();
 
 }
+
+
 
 int main(){
 
@@ -148,11 +165,15 @@ int main(){
 
 	set<vertex*> notches = obtain_notches(v0);
 
-	vector<face*> faces;
+	set<face*> faces;
 
-	visualize({v0->inc_edge->left});
+	visualize({v0->inc_edge->left},"input.svg");
+
+
+	cout<<endl;
 
 	while(n>3){
+		cout<<"n = "<<n<<"\n";
 		vertex* v1 = prev_pol.back();
 		vertex* v2 = v1->inc_edge->dest;
 
@@ -167,6 +188,8 @@ int main(){
 			xmax = max(xmax, candidate->x);
 			ymin = min(ymin, candidate->y); 
 			ymax = max(ymax, candidate->y);
+			cout<<"---------CANDIDATE----------\n";
+			cout<<candidate->x<<" "<<candidate->y<<"\n";
 			notches.erase(candidate);
 			candidate = candidate->inc_edge->dest;
 		}
@@ -174,31 +197,45 @@ int main(){
 		// cout<<cur_pol.size()<<"\n";
 
 		if(cur_pol.size()==n){
-			faces.push_back(v1->inc_edge->left);
+			faces.insert(v1->inc_edge->left);
+			faces.insert(v1->inc_edge->twin->left);
 			break;
 		}
 		vector<vertex*> LPVS;
 		for(auto notch: notches) LPVS.push_back(notch);
 		// cout<<LPVS.size()<<"huh\n";
+		cout<<"--------NOTCH-------"<<endl;
+		for(auto &x: notches) cout<<x->x<<" "<<x->y<<endl;
 		while(!LPVS.empty()){
+			cout<<"--------LPVS-------"<<endl;
+			for(auto &x: LPVS) cout<<x->x<<" "<<x->y<<endl;
+			cout<<endl;
 			vertex* notch = LPVS.back();
 			if(notch->x <= xmax && notch->x >= xmin && notch->y <= ymax && notch->y >= ymin){
 				if(check_in_pol(cur_pol,notch)){
+					cout<<notch->x<<" "<<notch->y<<" "<<" is in the polygon!!!\n";
 					bool side = check_reflex(cur_pol.back(),notch,v1);
-					while(!cur_pol.empty() && (check_reflex(cur_pol.back(),notch,v1)==side || check_collinear(cur_pol.back(),notch,v1))){
+					while(cur_pol.size()>2 && (check_reflex(cur_pol.back(),notch,v1)==side || check_collinear(cur_pol.back(),notch,v1))){
 						cur_pol.pop_back();
 					}
 				}
 			}
 			LPVS.pop_back();
 		}
-		// cout<<cur_pol.size()<<"-\n";
+		cout<<"SIZEEEEEE: " << cur_pol.size()<<"-" << endl;
 		if(cur_pol.back()!=v2){
+			cout<<"----ADDING EDGE-----\n";
+			print_vertex(v1);
+			print_vertex(v2);
+			print_vertex(cur_pol.back());
 			edge::add_edge(cur_pol.back(),v1);
-			face* cur_face = v1->inc_edge->left;
-			cur_face->traverse_face(); //updates the edges
-			faces.push_back(cur_face);
+			if(check_reflex(cur_pol.back()->inc_edge->dest,cur_pol.back(),v1)){
+				notches.insert(cur_pol.back());
+			}
+			faces.insert(v1->inc_edge->left);
+			faces.insert(v1->inc_edge->twin->left);
 			n = n - cur_pol.size() + 2;
+			cout << n << "\n";
 			// cout<<"here\n";
 		}
 
@@ -211,7 +248,7 @@ int main(){
 		f->traverse_face();
 	}
 
-	// visualize(faces);
+	visualize(faces,"output.svg");
 
 	cout<<"[~]Exiting...";
 }

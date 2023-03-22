@@ -90,7 +90,44 @@ bool check_in_pol(vector<vertex*> &cur_pol , vertex* point){
 	return num_intersect%2 == 1;
 }
 
+void visualize(vector<face*> faces){
 
+	//list out vertices and edges
+	set<pair<int,int>> points;
+	set<array<int,4>> edges;
+	int mx =-1;
+	for(auto face: faces){
+		edge* e = face->inc_edge;
+		points.insert({e->org->x,e->org->y});
+		edges.insert({e->org->x,e->org->y,e->dest->x,e->dest->y});
+		mx = max({e->org->x,e->org->y,mx});
+		e = e->next;
+		while(e!=face->inc_edge){
+			points.insert({e->org->x,e->org->y});
+			edges.insert({e->org->x,e->org->y,e->dest->x,e->dest->y});
+			mx = max({e->org->x,e->org->y,mx});
+			e = e->next;
+		}
+	}
+
+	//output svg file
+	ofstream out;
+	out.open("output.svg");
+	mx +=5;
+	out <<"<?xml version=\"1.0\" standalone=\"no\"?> \
+	<svg viewBox = \"-2 -2 "<<mx<<" "<<mx<<"\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n";
+
+	for(auto e: edges){
+		out<<"<line x1=\""<<e[0]<<"\" y1=\""<<e[1]<<"\" x2=\""<<e[2]<<"\" y2=\""<<e[3]<<"\" stroke = \"black\" stroke-width=\"1\"/>\n";
+	}
+	for(auto point: points){
+		out<<"<circle cx=\""<<point.first<<"\" cy=\""<<point.second<<"\" r=\"1\" fill=\"red\" stroke=\"red\" stroke-width=\"1\"/>\n";
+	}
+
+	out<<"</svg>";
+	out.close();
+
+}
 
 int main(){
 
@@ -168,8 +205,6 @@ int main(){
 		f->traverse_face();
 	}
 
-	//go through all faces and make an adjacency list
-
-
+	visualize(faces);
 
 }

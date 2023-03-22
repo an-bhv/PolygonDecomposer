@@ -1,9 +1,8 @@
 .cph
 .vscode
 .vs
-*.svg
-*.txt
 **.o
 **.exe
 *.txt
 *.svg
+tempCodeRunnerFile.cpp

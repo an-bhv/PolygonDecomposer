@@ -211,4 +211,5 @@ int main(){
 
 	visualize(faces);
 
+	cout<<"[~]Exiting...";
 }

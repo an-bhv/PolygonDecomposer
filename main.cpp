@@ -95,7 +95,7 @@ void visualize(vector<face*> faces){
 	//list out vertices and edges
 	set<pair<int,int>> points;
 	set<array<int,4>> edges;
-	int mx =-1;
+	int mx =-1,mn =0;
 	for(auto face: faces){
 		edge* e = face->inc_edge;
 		points.insert({e->org->x,e->org->y});
@@ -113,9 +113,10 @@ void visualize(vector<face*> faces){
 	//output svg file
 	ofstream out;
 	out.open("output.svg");
-	mx +=5;
+	mx +=10;
+	mn -=5;
 	out <<"<?xml version=\"1.0\" standalone=\"no\"?> \
-	<svg viewBox = \"-2 -2 "<<mx<<" "<<mx<<"\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n";
+	<svg viewBox = \""<<mn<<" "<<mn<<" "<<mx<<" "<<mx<<"\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n";
 
 	for(auto e: edges){
 		out<<"<line x1=\""<<e[0]<<"\" y1=\""<<e[1]<<"\" x2=\""<<e[2]<<"\" y2=\""<<e[3]<<"\" stroke = \"black\" stroke-width=\"1\"/>\n";

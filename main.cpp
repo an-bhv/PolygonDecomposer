@@ -171,16 +171,19 @@ int main(){
 
 
 	cout<<endl;
-
 	while(n>3){
 		cout<<"n = "<<n<<"\n";
 		vertex* v1 = prev_pol.back();
 		vertex* v2 = v1->inc_edge->dest;
 
+		cout<<"----v1 and v2-----\n";
+		print_vertex(v1);
+		print_vertex(v2);
+		cout<<"-----\n";
 		cur_pol = {v1,v2};
 		vertex* candidate = v2->inc_edge->dest;
 
-		int xmin = min(v1->x,v2->x),xmax = min(v1->x,v2->x), ymin = min(v1->y,v2->y), ymax = max(v1->y,v2->y);
+		int xmin = min(v1->x,v2->x),xmax = max(v1->x,v2->x), ymin = min(v1->y,v2->y), ymax = max(v1->y,v2->y);
 
 		while(!check_reflex(cur_pol[cur_pol.size()-2],cur_pol[cur_pol.size()-1],candidate) && !check_reflex(cur_pol[cur_pol.size()-1],candidate,v1) && !check_reflex(candidate,v1,v2) && cur_pol.size()<n){
 			cur_pol.push_back(candidate);
@@ -196,12 +199,15 @@ int main(){
 
 		// cout<<cur_pol.size()<<"\n";
 
+		cout<<"-----BOUNDING RECT------\n";
+		printf("{%d,%d} {%d,%d}\n",xmin,ymin,xmax,ymax);
+		cout<<"----------\n";
 		if(cur_pol.size()==n){
 			faces.insert(v1->inc_edge->left);
 			faces.insert(v1->inc_edge->twin->left);
 			break;
 		}
-		vector<vertex*> LPVS;
+		deque<vertex*> LPVS;
 		for(auto notch: notches) LPVS.push_back(notch);
 		// cout<<LPVS.size()<<"huh\n";
 		cout<<"--------NOTCH-------"<<endl;
@@ -210,17 +216,18 @@ int main(){
 			cout<<"--------LPVS-------"<<endl;
 			for(auto &x: LPVS) cout<<x->x<<" "<<x->y<<endl;
 			cout<<endl;
-			vertex* notch = LPVS.back();
+			vertex* notch = LPVS.front();
 			if(notch->x <= xmax && notch->x >= xmin && notch->y <= ymax && notch->y >= ymin){
+				cout<<notch->x<<" "<<notch->y<<" "<<" is in the rectangle!!!"<<endl;
 				if(check_in_pol(cur_pol,notch)){
-					cout<<notch->x<<" "<<notch->y<<" "<<" is in the polygon!!!\n";
+					cout<<notch->x<<" "<<notch->y<<" "<<" is in the polygon!!!"<<endl;
 					bool side = check_reflex(cur_pol.back(),notch,v1);
 					while(cur_pol.size()>2 && (check_reflex(cur_pol.back(),notch,v1)==side || check_collinear(cur_pol.back(),notch,v1))){
 						cur_pol.pop_back();
 					}
-				}
+				}else printf("Not in pol\n");
 			}
-			LPVS.pop_back();
+			LPVS.pop_front();
 		}
 		cout<<"SIZEEEEEE: " << cur_pol.size()<<"-" << endl;
 		if(cur_pol.back()!=v2){

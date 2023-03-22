@@ -212,22 +212,58 @@ int main(){
 		// cout<<LPVS.size()<<"huh\n";
 		cout<<"--------NOTCH-------"<<endl;
 		for(auto &x: notches) cout<<x->x<<" "<<x->y<<endl;
-		while(!LPVS.empty()){
+		bool backward = false;
+		while(!LPVS.empty() && !backward){
 			cout<<"--------LPVS-------"<<endl;
 			for(auto &x: LPVS) cout<<x->x<<" "<<x->y<<endl;
 			cout<<endl;
 			vertex* notch = LPVS.front();
-			if(notch->x <= xmax && notch->x >= xmin && notch->y <= ymax && notch->y >= ymin){
-				cout<<notch->x<<" "<<notch->y<<" "<<" is in the rectangle!!!"<<endl;
+			do{
+				notch = LPVS.front();
+				print_vertex(notch);
+				if(!(notch->x <= xmax && notch->x >= xmin && notch->y <= ymax && notch->y >= ymin)){
+					cout<<notch->x<<" "<<notch->y<<" "<<" is not in the rectangle!!!"<<endl;
+					LPVS.pop_front();
+				}
+			}while(!(notch->x <= xmax && notch->x >= xmin && notch->y <= ymax && notch->y >= ymin) && !LPVS.empty());
+			cout<<"OUTSIDE!!!!"<<endl;
+			
+			if(!LPVS.empty()){
+				
 				if(check_in_pol(cur_pol,notch)){
 					cout<<notch->x<<" "<<notch->y<<" "<<" is in the polygon!!!"<<endl;
+
+					set<vertex*> VTR;
 					bool side = check_reflex(cur_pol.back(),notch,v1);
-					while(cur_pol.size()>2 && (check_reflex(cur_pol.back(),notch,v1)==side || check_collinear(cur_pol.back(),notch,v1))){
-						cur_pol.pop_back();
+					for(auto v: cur_pol){
+						if((check_reflex(cur_pol.back(),notch,v)==side || check_collinear(cur_pol.back(),notch,v))){
+							VTR.insert(v);
+							cout<<"in VTR "<<endl;
+						}
+						print_vertex(v);
 					}
+
+					// cout<<"----VTR----"<<endl;
+					// for(auto v: VTR) print_vertex(v);
+					// cout<<"-----"<<endl;
+					deque<vertex*> temp;
+					for(auto v: LPVS){
+						if(!VTR.count(v)){
+							temp.push_back(v);
+						}
+					}
+					LPVS = temp;
+					backward = true;
+					// bool side = check_reflex(cur_pol.back(),notch,v1);
+					// while(cur_pol.size()>2 && (check_reflex(cur_pol.back(),notch,v1)==side || check_collinear(cur_pol.back(),notch,v1))){
+					// 	cur_pol.pop_back();
+					// }
 				}else printf("Not in pol\n");
-			}
-			LPVS.pop_front();
+				deque<vertex*> temp;
+				for(auto v: LPVS) if(v!=notch) temp.push_back(v);
+				LPVS = temp;
+			}else cout<<"LPVS is empty!!!!"<<endl;
+
 		}
 		cout<<"SIZEEEEEE: " << cur_pol.size()<<"-" << endl;
 		if(cur_pol.back()!=v2){

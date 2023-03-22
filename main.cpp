@@ -119,10 +119,10 @@ void visualize(vector<face*> faces){
 	<svg viewBox = \""<<mn<<" "<<mn<<" "<<mx<<" "<<mx<<"\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n";
 
 	for(auto e: edges){
-		out<<"<line x1=\""<<e[0]<<"\" y1=\""<<e[1]<<"\" x2=\""<<e[2]<<"\" y2=\""<<e[3]<<"\" stroke = \"black\" stroke-width=\"1\"/>\n";
+		out<<"<line x1=\""<<e[0]<<"\" y1=\""<<e[1]<<"\" x2=\""<<e[2]<<"\" y2=\""<<e[3]<<"\" stroke = \"black\" stroke-width=\"0.5\"/>\n";
 	}
 	for(auto point: points){
-		out<<"<circle cx=\""<<point.first<<"\" cy=\""<<point.second<<"\" r=\"1\" fill=\"red\" stroke=\"red\" stroke-width=\"1\"/>\n";
+		out<<"<circle cx=\""<<point.first<<"\" cy=\""<<point.second<<"\" r=\"0.5\" fill=\"red\" stroke=\"red\" stroke-width=\"0.5\"/>\n";
 	}
 
 	out<<"</svg>";
@@ -149,6 +149,8 @@ int main(){
 	set<vertex*> notches = obtain_notches(v0);
 
 	vector<face*> faces;
+
+	visualize({v0->inc_edge->left});
 
 	while(n>3){
 		vertex* v1 = prev_pol.back();
@@ -209,7 +211,7 @@ int main(){
 		f->traverse_face();
 	}
 
-	visualize(faces);
+	// visualize(faces);
 
 	cout<<"[~]Exiting...";
 }

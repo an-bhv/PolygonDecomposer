@@ -49,6 +49,24 @@ void edge::add_edge(vertex* u, vertex* v){
 	
 }
 
+
+face* edge::remove_edge(edge* e){
+
+	edge::link_edge(e->twin->prev,e->next);
+	edge::link_edge(e->prev,e->twin->next);
+
+	face* deleted_face = e->left;
+	edge* twin = e->twin;
+	face* kept_face = twin->left;
+	if(kept_face->inc_edge==twin)
+		kept_face->inc_edge = twin->next;
+	delete e;
+	delete twin;
+	kept_face->traverse_face();
+	return deleted_face;
+}
+
+
 edge::edge(vertex *u, vertex *v)
 {
 	org = u;

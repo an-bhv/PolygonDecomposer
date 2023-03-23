@@ -25,6 +25,8 @@ namespace dcel{
 
 			static void add_edge(vertex* u, vertex* v);
 
+			static face* remove_edge(edge* e);
+
 			edge(vertex *u, vertex *v);
 	};
 

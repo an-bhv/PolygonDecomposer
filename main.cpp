@@ -176,6 +176,9 @@ int main(){
 	faces.insert(v0->inc_edge->left);
 	visualize(faces,"in.txt");
 	int i =0;
+
+	vector<edge*> diagonals;
+
 	while(n>3){
 
 		// visualize(faces,"output"+ to_string(i) +".svg");
@@ -295,6 +298,8 @@ int main(){
 			// print_vertex(cur_pol.back());
 			edge::add_edge(cur_pol.back(),v1);
 
+			diagonals.push_back(v1->inc_edge->twin);
+
 			v1->inc_edge->left->traverse_face();
 			v1->inc_edge->twin->left->traverse_face();
 			faces.insert(v1->inc_edge->left);
@@ -316,6 +321,38 @@ int main(){
 	}
 
 	visualize(faces,"output.txt");
+	cout<<"[~]MERGING...";
+	//MERGING!!!!!!!
+
+
+	for(auto d: diagonals){
+
+		//check if the diagonal is inessential
+
+		vertex* v0 = d->twin->prev->org;
+		vertex* v1 = d->dest;
+		vertex* v2 = d->next->dest;
+
+		if(check_reflex(v0,v1,v2)){
+			continue;
+		}
+
+		v0 = d->prev->org;
+		v1 = d->twin->dest;
+		v2 = d->twin->next->dest;
+
+		if(check_reflex(v0,v1,v2)){
+			continue;
+		}
+
+		face* deleted_face = edge::remove_edge(d);
+		faces.erase(deleted_face);
+		delete deleted_face;
+	}
+
+	
+	visualize(faces,"merged.txt");
+
 
 	cout<<"[~]Exiting...";
 }

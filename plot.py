@@ -9,7 +9,7 @@ for line in lines:
     # print(line)
     if line.strip() == "":
         # Empty line indicates a new polygon
-        plt.fill(xs, ys, edgecolor='black', linewidth=0.5)
+        plt.fill(xs, ys, color='w',edgecolor='black', linewidth=0.5)
         xs, ys = [], []
     else:
         # Check that line has at least two comma-separated values
@@ -23,7 +23,7 @@ for line in lines:
 # print(xs,ys)
 
 # Fill the last polygon
-# plt.fill(xs, ys, edgecolor='black', linewidth=0.5)
+plt.fill(xs, ys, edgecolor='black', linewidth=0.5)
 
 # # Add grid and set style to dotted
 # plt.grid(linestyle=':')

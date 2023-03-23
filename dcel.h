@@ -11,6 +11,7 @@ namespace dcel{
 			int x;
 			int y;
 			edge* inc_edge;
+			bool is_notch;
 			vertex(int x, int y);
 	};
     class edge{
@@ -18,6 +19,7 @@ namespace dcel{
 			vertex *org, *dest;
 			edge *twin, *next, *prev;
 			face *left;
+			bool merged;
 
 			static edge* create_edge(vertex *u, vertex *v);
 
@@ -34,8 +36,7 @@ namespace dcel{
 			
 			void traverse_face();
 			face(edge* e);
-	};
-	
+	};	
 }
 
 

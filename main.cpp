@@ -8,7 +8,7 @@ using dcel::face;
 
 
 void print_vertex(vertex* v){
-	cout<<"{"<<v->x<<" ,"<<v->y<<"}\n";
+	std::cout<<"{"<<v->x<<" ,"<<v->y<<"}\n";
 }
 //reads polygon file and build dcel, return pointer to first vertex
 vertex* build(vector<pair<int,int>>& inp,int n){
@@ -62,6 +62,7 @@ set<vertex*> obtain_notches(vertex* v){
 	while(true){
 		if(check_reflex(prev_edge->org,e->org,e->dest)){
 			notches.insert(e->org);
+			e->org->is_notch = true;
 		}
         prev_edge = e;
 		e = e->next;
@@ -146,6 +147,62 @@ void visualize(set<face*> faces,string name){
 }
 
 
+void visualize2(set<face*> faces,string name){
+
+	//list out vertices and edges
+	set<pair<int,int>> points;
+	set<array<int,4>> edges;
+	int mx =-1,mn =0;
+	// cout<<"-----VIS----\n";
+	for(auto face: faces){
+		edge* e = face->inc_edge;
+		// cout<<face<<"\n";
+		// print_vertex(e->org);
+		// print_vertex(e->dest);
+		points.insert({e->org->x,e->org->y});
+		if (e->merged == false)
+		{
+			edges.insert({e->org->x,e->org->y,e->dest->x,e->dest->y});
+		}
+		mx = max({e->org->x,e->org->y,mx});
+		e = e->next;
+		while(e!=face->inc_edge){
+			// cout<<"===\n";
+			// print_vertex(e->org);
+			// print_vertex(e->dest);
+			points.insert({e->org->x,e->org->y});
+			if (e->merged == false)
+			{
+				edges.insert({e->org->x,e->org->y,e->dest->x,e->dest->y});
+			}
+			mx = max({e->org->x,e->org->y,mx});
+			e = e->next;
+		}
+	}
+
+	for(auto p: points){
+		cout<<p.first<<" "<<p.second<<"\n";
+	}
+
+	//output svg file
+	ofstream out;
+	out.open(name);
+	mx +=10;
+	mn -=5;
+	out <<"<?xml version=\"1.0\" standalone=\"no\"?> \
+	<svg viewBox = \""<<mn<<" "<<mn<<" "<<mx<<" "<<mx<<"\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n";
+
+	for(auto e: edges){
+		out<<"<line x1=\""<<e[0]<<"\" y1=\""<<e[1]<<"\" x2=\""<<e[2]<<"\" y2=\""<<e[3]<<"\" stroke = \"black\" stroke-width=\"0.2\"/>\n";
+	}
+	for(auto point: points){
+		out<<"<circle cx=\""<<point.first<<"\" cy=\""<<point.second<<"\" r=\"0.2\" fill=\"red\"/>\n";
+	}
+
+	out<<"</svg>";
+	out.close();
+
+}
 
 int main(){
 
@@ -292,6 +349,8 @@ int main(){
 	}
 
 	visualize(faces,"output.svg");
+
+	visualize2(faces,"output2.svg");
 
 	cout<<"[~]Exiting...";
 }

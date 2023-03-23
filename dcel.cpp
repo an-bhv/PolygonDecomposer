@@ -10,6 +10,7 @@ vertex::vertex(int x, int y)
 {
 	this->x = x;
 	this->y = y;
+	this->is_notch = false;
 }
 
 
@@ -40,12 +41,18 @@ void edge::add_edge(vertex* u, vertex* v){
 	new_edge->left = v->inc_edge->left;
 	face* new_face = new face(new_edge->twin);
 	v->inc_edge = new_edge->twin;
+
+	if (u->is_notch == false && v->is_notch == false)
+	{
+		new_edge->merged = true;
+	}
 }
 
 edge::edge(vertex *u, vertex *v)
 {
 	org = u;
 	dest = v;
+	merged = false;
 }
 
 

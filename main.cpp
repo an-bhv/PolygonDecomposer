@@ -53,15 +53,15 @@ bool check_collinear(vertex* v0,vertex* v1,vertex* v2){
 }
 
 
-set<vertex*> obtain_notches(vertex* v){
+deque<vertex*> obtain_notches(vertex* v){
 	edge* e0 = v->inc_edge;
 	edge* prev_edge = e0;
 	edge* e = v->inc_edge->next;
-	set<vertex*> notches;
+	deque<vertex*> notches;
 
 	while(true){
 		if(check_reflex(prev_edge->org,e->org,e->dest)){
-			notches.insert(e->org);
+			notches.push_back(e->org);
 		}
         prev_edge = e;
 		e = e->next;
@@ -85,7 +85,7 @@ bool check_in_pol(vector<vertex*> &cur_pol , vertex* point){
 		}
 		if(a->y <= point->y && b->y > point->y && !check_reflex(a, b, point)){
 			num_intersect++;
-			if(check_collinear(cur_pol[i], cur_pol[i+1], point)){
+			if(check_collinear(a, b, point)){
 				return true;
 			}
 		}
@@ -132,15 +132,15 @@ void visualize(set<face*> faces,string name){
 	mn -=5;
 	out <<"<?xml version=\"1.0\" standalone=\"no\"?> \
 	<svg viewBox = \""<<mn<<" "<<mn<<" "<<mx<<" "<<mx<<"\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n";
-
+	out<<"<g transform=\"scale(1,-1)\" > <g transform=\"translate(0,"<<-mx/2<<")\">\n";
 	for(auto e: edges){
 		out<<"<line x1=\""<<e[0]<<"\" y1=\""<<e[1]<<"\" x2=\""<<e[2]<<"\" y2=\""<<e[3]<<"\" stroke = \"black\" stroke-width=\"0.2\"/>\n";
 	}
 	for(auto point: points){
 		out<<"<circle cx=\""<<point.first<<"\" cy=\""<<point.second<<"\" r=\"0.2\" fill=\"red\"/>\n";
 	}
-
-	out<<"</svg>";
+	
+	out<<"</g></g></svg>";
 	out.close();
 
 }
@@ -163,15 +163,20 @@ int main(){
 	std::vector<vertex*> prev_pol,cur_pol;
 	prev_pol.push_back(v0);
 
-	set<vertex*> notches = obtain_notches(v0);
+	// deque<vertex*> notches = obtain_notches(v0);
 
 	set<face*> faces;
-
-	visualize({v0->inc_edge->left},"input.svg");
+	faces.insert(v0->inc_edge->left);
+	visualize(faces,"input.svg");
 
 
 	cout<<endl;
+	int i =0;
 	while(n>3){
+
+		visualize(faces,"output"+ to_string(i) +".svg");
+		i++;
+
 		cout<<"n = "<<n<<"\n";
 		vertex* v1 = prev_pol.back();
 		vertex* v2 = v1->inc_edge->dest;
@@ -193,7 +198,7 @@ int main(){
 			ymax = max(ymax, candidate->y);
 			cout<<"---------CANDIDATE----------\n";
 			cout<<candidate->x<<" "<<candidate->y<<"\n";
-			notches.erase(candidate);
+			// notches.erase(candidate);
 			candidate = candidate->inc_edge->dest;
 		}
 
@@ -208,61 +213,76 @@ int main(){
 			break;
 		}
 		deque<vertex*> LPVS;
-		for(auto notch: notches) LPVS.push_back(notch);
-		// cout<<LPVS.size()<<"huh\n";
-		cout<<"--------NOTCH-------"<<endl;
-		for(auto &x: notches) cout<<x->x<<" "<<x->y<<endl;
-		bool backward = false;
-		while(!LPVS.empty() && !backward){
+		// for(auto notch: notches) LPVS.push_back(notch);
+		// // cout<<LPVS.size()<<"huh\n";
+		// cout<<"--------NOTCH-------"<<endl;
+		// for(auto &x: notches) cout<<x->x<<" "<<x->y<<endl;
+
+		deque<vertex*> temp = obtain_notches(v1);
+
+		for(auto x: temp){
+			if(find(cur_pol.begin(),cur_pol.end(),x)==cur_pol.end()) LPVS.push_back(x);
+		}
+
+
+		while(!LPVS.empty()){
 			cout<<"--------LPVS-------"<<endl;
 			for(auto &x: LPVS) cout<<x->x<<" "<<x->y<<endl;
+			bool backward = false;
 			cout<<endl;
-			vertex* notch = LPVS.front();
-			do{
-				notch = LPVS.front();
-				print_vertex(notch);
-				if(!(notch->x <= xmax && notch->x >= xmin && notch->y <= ymax && notch->y >= ymin)){
-					cout<<notch->x<<" "<<notch->y<<" "<<" is not in the rectangle!!!"<<endl;
-					LPVS.pop_front();
-				}
-			}while(!(notch->x <= xmax && notch->x >= xmin && notch->y <= ymax && notch->y >= ymin) && !LPVS.empty());
-			cout<<"OUTSIDE!!!!"<<endl;
-			
-			if(!LPVS.empty()){
+
+
+			while(!backward && !LPVS.empty()){
+				vertex* notch = LPVS.front();
+				do{
+					notch = LPVS.front();
+					print_vertex(notch);
+					if(!(notch->x <= xmax && notch->x >= xmin && notch->y <= ymax && notch->y >= ymin)){
+						cout<<notch->x<<" "<<notch->y<<" "<<" is not in the rectangle!!!"<<endl;
+						LPVS.pop_front();
+					}
+				}while(!(notch->x <= xmax && notch->x >= xmin && notch->y <= ymax && notch->y >= ymin) && !LPVS.empty());
+
+				if(!LPVS.empty()){
 				
-				if(check_in_pol(cur_pol,notch)){
-					cout<<notch->x<<" "<<notch->y<<" "<<" is in the polygon!!!"<<endl;
+					if(check_in_pol(cur_pol,notch)){
+						cout<<notch->x<<" "<<notch->y<<" "<<" is in the polygon!!!"<<endl;
 
-					set<vertex*> VTR;
-					bool side = check_reflex(cur_pol.back(),notch,v1);
-					for(auto v: cur_pol){
-						if((check_reflex(cur_pol.back(),notch,v)==side || check_collinear(cur_pol.back(),notch,v))){
-							VTR.insert(v);
-							cout<<"in VTR "<<endl;
+						set<vertex*> VTR;
+						bool side = check_reflex(cur_pol.back(),notch,v1) || check_collinear(cur_pol.back(),notch,v1);
+						VTR.insert(cur_pol.back());
+						for(auto v: cur_pol){
+							if((check_reflex(v,notch,v1)==side || check_collinear(v,notch,v1)) && v!=v1){
+								VTR.insert(v);
+								cout<<"in VTR "<<endl;
+							}
+							print_vertex(v);
 						}
-						print_vertex(v);
-					}
 
-					// cout<<"----VTR----"<<endl;
-					// for(auto v: VTR) print_vertex(v);
-					// cout<<"-----"<<endl;
+						// cout<<"----VTR----"<<endl;
+						// for(auto v: VTR) print_vertex(v);
+						// cout<<"-----"<<endl;
+						vector<vertex*> temp;
+						for(auto v: cur_pol){
+							if(!VTR.count(v)){
+								temp.push_back(v);
+							}
+						}
+						cur_pol = temp;
+						backward = true;
+						// bool side = check_reflex(cur_pol.back(),notch,v1);
+						// while(cur_pol.size()>2 && (check_reflex(cur_pol.back(),notch,v1)==side || check_collinear(cur_pol.back(),notch,v1))){
+						// 	cur_pol.pop_back();
+						// }
+					}else printf("Not in pol\n");
 					deque<vertex*> temp;
-					for(auto v: LPVS){
-						if(!VTR.count(v)){
-							temp.push_back(v);
-						}
-					}
+					for(auto v: LPVS) if(v!=notch) temp.push_back(v);
 					LPVS = temp;
-					backward = true;
-					// bool side = check_reflex(cur_pol.back(),notch,v1);
-					// while(cur_pol.size()>2 && (check_reflex(cur_pol.back(),notch,v1)==side || check_collinear(cur_pol.back(),notch,v1))){
-					// 	cur_pol.pop_back();
-					// }
-				}else printf("Not in pol\n");
-				deque<vertex*> temp;
-				for(auto v: LPVS) if(v!=notch) temp.push_back(v);
-				LPVS = temp;
-			}else cout<<"LPVS is empty!!!!"<<endl;
+				}else cout<<"LPVS is empty!!!!"<<endl;
+
+			}
+			
+			
 
 		}
 		cout<<"SIZEEEEEE: " << cur_pol.size()<<"-" << endl;
@@ -272,11 +292,13 @@ int main(){
 			print_vertex(v2);
 			print_vertex(cur_pol.back());
 			edge::add_edge(cur_pol.back(),v1);
-			if(check_reflex(cur_pol.back()->inc_edge->dest,cur_pol.back(),v1)){
-				notches.insert(cur_pol.back());
-			}
+
+			v1->inc_edge->left->traverse_face();
+			v1->inc_edge->twin->left->traverse_face();
 			faces.insert(v1->inc_edge->left);
 			faces.insert(v1->inc_edge->twin->left);
+
+
 			n = n - cur_pol.size() + 2;
 			cout << n << "\n";
 			// cout<<"here\n";

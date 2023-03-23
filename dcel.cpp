@@ -37,9 +37,16 @@ void edge::add_edge(vertex* u, vertex* v){
 	edge::link_edge(new_edge,v->inc_edge);
 	edge::link_edge(new_edge->twin,u->inc_edge);
 
-	new_edge->left = v->inc_edge->left;
-	face* new_face = new face(new_edge->twin);
+	// new_edge->left v->inc_edge->left;
+	// delete v->inc_edge->left;
+	face* old_face = v->inc_edge->left;
 	v->inc_edge = new_edge->twin;
+	face* new_face = new face(new_edge);
+	old_face->inc_edge = new_edge->twin;
+	new_edge->twin->left = old_face;
+	old_face->traverse_face();
+	// face* new_face2 = new face(new_edge->twin);
+	
 }
 
 edge::edge(vertex *u, vertex *v)

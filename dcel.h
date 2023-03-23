@@ -8,10 +8,10 @@ namespace dcel{
 
     class vertex{
 		public:
-			int x;
-			int y;
+			double x;
+			double y;
 			edge* inc_edge;
-			vertex(int x, int y);
+			vertex(double x, double y);
 	};
     class edge{
 		public:

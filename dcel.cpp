@@ -6,7 +6,7 @@ using namespace dcel;
 
 
 
-vertex::vertex(int x, int y)
+vertex::vertex(double x, double y)
 {
 	this->x = x;
 	this->y = y;
@@ -58,14 +58,14 @@ edge::edge(vertex *u, vertex *v)
 
 
 void face::traverse_face(){
-	std::cout<<this<<"\n-------------\n";
-	std::cout<<inc_edge->org->x << " " << inc_edge->org->y<<", ";
-	std::cout<<inc_edge->dest->x << " " << inc_edge->dest->y <<"\n";
+	// std::cout<<this<<"\n-------------\n";
+	// std::cout<<inc_edge->org->x << " " << inc_edge->org->y<<", ";
+	// std::cout<<inc_edge->dest->x << " " << inc_edge->dest->y <<"\n";
 	edge* e = inc_edge->next;
 	while(e!=inc_edge){
 		e->left = this;
-		std::cout<<e->org->x << " " << e->org->y<<", ";
-		std::cout<<e->dest->x << " " << e->dest->y <<"\n";
+		// std::cout<<e->org->x << " " << e->org->y<<", ";
+		// std::cout<<e->dest->x << " " << e->dest->y <<"\n";
 		e = e->next; 
 	}
 }

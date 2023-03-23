@@ -11,7 +11,7 @@ void print_vertex(vertex* v){
 	cout<<"{"<<v->x<<" ,"<<v->y<<"}\n";
 }
 //reads polygon file and build dcel, return pointer to first vertex
-vertex* build(vector<pair<int,int>>& inp,int n){
+vertex* build(vector<pair<double,double>>& inp,int n){
 
 	vertex* prev = new vertex(inp[0].first,inp[0].second);
 	vertex* v0 = prev;
@@ -45,11 +45,11 @@ vertex* build(vector<pair<int,int>>& inp,int n){
 }
 
 bool check_reflex(vertex* v0,vertex* v1,vertex* v2){
-	return (((v2->y - v0->y)*(v1->x - v0->x) - (v1->y - v0->y)*(v2->x - v0->x)) > 0);
+	return (((v2->y - v0->y)*(v1->x - v0->x) - (v1->y - v0->y)*(v2->x - v0->x)) > 0.0);
 }
 
 bool check_collinear(vertex* v0,vertex* v1,vertex* v2){
-	return (((v2->y - v0->y)*(v1->x - v0->x) - (v1->y - v0->y)*(v2->x - v0->x)) == 0);
+	return (((v2->y - v0->y)*(v1->x - v0->x) - (v1->y - v0->y)*(v2->x - v0->x)) == 0.0);
 }
 
 
@@ -74,7 +74,7 @@ deque<vertex*> obtain_notches(vertex* v){
 
 bool check_in_pol(vector<vertex*> &cur_pol , vertex* point){
 	int num_intersect = 0;
-	int ymin, ymax;
+	double ymin, ymax;
 	vertex* a;
 	vertex* b;
 	for(int i=0; i<cur_pol.size(); i++){
@@ -96,9 +96,9 @@ bool check_in_pol(vector<vertex*> &cur_pol , vertex* point){
 void visualize(set<face*> faces,string name){
 
 	//list out vertices and edges
-	set<pair<int,int>> points;
-	set<array<int,4>> edges;
-	int mx =-1,mn =0;
+	set<pair<double,double>> points;
+	set<array<double,4>> edges;
+	double mx =-1,mn =0;
 	// cout<<"-----VIS----\n";
 	for(auto face: faces){
 		edge* e = face->inc_edge;
@@ -151,7 +151,7 @@ int main(){
 	// freopen("input.txt","r", stdin);
 	int n;std::cin>>n; //number of points
 	int flip;cin>>flip; //flip the input if anti clockwise
-	std::vector<pair<int,int>> vertices(n);
+	std::vector<pair<double,double>> vertices(n);
 	for(int i=0;i<n;i++){
 		cin>>vertices[i].first>>vertices[i].second;
 	}
@@ -187,7 +187,7 @@ int main(){
 		cur_pol = {v1,v2};
 		vertex* candidate = v2->inc_edge->dest;
 
-		int xmin = min(v1->x,v2->x),xmax = max(v1->x,v2->x), ymin = min(v1->y,v2->y), ymax = max(v1->y,v2->y);
+		double xmin = min(v1->x,v2->x),xmax = max(v1->x,v2->x), ymin = min(v1->y,v2->y), ymax = max(v1->y,v2->y);
 
 		while(!check_reflex(cur_pol[cur_pol.size()-2],cur_pol[cur_pol.size()-1],candidate) && !check_reflex(cur_pol[cur_pol.size()-1],candidate,v1) && !check_reflex(candidate,v1,v2) && cur_pol.size()<n){
 			cur_pol.push_back(candidate);

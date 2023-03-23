@@ -11,7 +11,7 @@ void print_vertex(vertex* v){
 	cout<<"{"<<v->x<<" ,"<<v->y<<"}\n";
 }
 //reads polygon file and build dcel, return pointer to first vertex
-vertex* build(vector<pair<int,int>>& inp,int n){
+vertex* build(vector<pair<double,double>>& inp,int n){
 
 	vertex* prev = new vertex(inp[0].first,inp[0].second);
 	vertex* v0 = prev;
@@ -45,11 +45,11 @@ vertex* build(vector<pair<int,int>>& inp,int n){
 }
 
 bool check_reflex(vertex* v0,vertex* v1,vertex* v2){
-	return (((v2->y - v0->y)*(v1->x - v0->x) - (v1->y - v0->y)*(v2->x - v0->x)) > 0);
+	return (((v2->y - v0->y)*(v1->x - v0->x) - (v1->y - v0->y)*(v2->x - v0->x)) > 0.0);
 }
 
 bool check_collinear(vertex* v0,vertex* v1,vertex* v2){
-	return (((v2->y - v0->y)*(v1->x - v0->x) - (v1->y - v0->y)*(v2->x - v0->x)) == 0);
+	return (((v2->y - v0->y)*(v1->x - v0->x) - (v1->y - v0->y)*(v2->x - v0->x)) == 0.0);
 }
 
 
@@ -74,7 +74,7 @@ deque<vertex*> obtain_notches(vertex* v){
 
 bool check_in_pol(vector<vertex*> &cur_pol , vertex* point){
 	int num_intersect = 0;
-	int ymin, ymax;
+	double ymin, ymax;
 	vertex* a;
 	vertex* b;
 	for(int i=0; i<cur_pol.size(); i++){
@@ -96,50 +96,58 @@ bool check_in_pol(vector<vertex*> &cur_pol , vertex* point){
 void visualize(set<face*> faces,string name){
 
 	//list out vertices and edges
-	set<pair<int,int>> points;
-	set<array<int,4>> edges;
-	int mx =-1,mn =0;
+	// set<pair<double,double>> points;
+	// set<array<double,4>> edges;
+	// double mx =-1,mn =0;
+	ofstream out;
+	out.open(name);
+
 	// cout<<"-----VIS----\n";
 	for(auto face: faces){
 		edge* e = face->inc_edge;
 		// cout<<face<<"\n";
 		// print_vertex(e->org);
 		// print_vertex(e->dest);
-		points.insert({e->org->x,e->org->y});
-		edges.insert({e->org->x,e->org->y,e->dest->x,e->dest->y});
-		mx = max({e->org->x,e->org->y,mx});
+		// points.insert({e->org->x,e->org->y});
+		// edges.insert({e->org->x,e->org->y,e->dest->x,e->dest->y});
+
+		// mx = max({e->org->x,e->org->y,mx});
+		out<<e->org->x<<","<<e->org->y<<"\n";
 		e = e->next;
 		while(e!=face->inc_edge){
 			// cout<<"===\n";
 			// print_vertex(e->org);
 			// print_vertex(e->dest);
-			points.insert({e->org->x,e->org->y});
-			edges.insert({e->org->x,e->org->y,e->dest->x,e->dest->y});
-			mx = max({e->org->x,e->org->y,mx});
+			// points.insert({e->org->x,e->org->y});
+			// edges.insert({e->org->x,e->org->y,e->dest->x,e->dest->y});
+			// mx = max({e->org->x,e->org->y,mx})
+			out<<e->org->x<<", "<<e->org->y<<"\n";
 			e = e->next;
 		}
+		out<<"\n";
 	}
 
-	for(auto p: points){
-		cout<<p.first<<" "<<p.second<<"\n";
-	}
+	// for(auto p: points){
+	// 	cout<<p.first<<" "<<p.second<<"\n";
+	// }
 
 	//output svg file
-	ofstream out;
-	out.open(name);
-	mx +=10;
-	mn -=5;
-	out <<"<?xml version=\"1.0\" standalone=\"no\"?> \
-	<svg viewBox = \""<<mn<<" "<<mn<<" "<<mx<<" "<<mx<<"\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n";
-	out<<"<g transform=\"scale(1,-1)\" > <g transform=\"translate(0,"<<-mx/2<<")\">\n";
-	for(auto e: edges){
-		out<<"<line x1=\""<<e[0]<<"\" y1=\""<<e[1]<<"\" x2=\""<<e[2]<<"\" y2=\""<<e[3]<<"\" stroke = \"black\" stroke-width=\"0.2\"/>\n";
-	}
-	for(auto point: points){
-		out<<"<circle cx=\""<<point.first<<"\" cy=\""<<point.second<<"\" r=\"0.2\" fill=\"red\"/>\n";
-	}
+
 	
-	out<<"</g></g></svg>";
+
+	// mx += (0.1)*mx;
+	// mn -= (0.1)*mn;
+	// out <<"<?xml version=\"1.0\" standalone=\"no\"?> \
+	// <svg viewBox = \""<<mn<<" "<<mn<<" "<<mx<<" "<<mx<<"\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n";
+	// out<<"<g transform=\"scale(1,-1)\" > <g transform=\"translate(0,"<<-mx/2<<")\">\n";
+	// for(auto e: edges){
+	// 	out<<"<line x1=\""<<e[0]<<"\" y1=\""<<e[1]<<"\" x2=\""<<e[2]<<"\" y2=\""<<e[3]<<"\" stroke = \"black\" stroke-width=\"0.002\"/>\n";
+	// }
+	// for(auto point: points){
+	// 	out<<"<circle cx=\""<<point.first<<"\" cy=\""<<point.second<<"\" r=\"0.002\" fill=\"red\"/>\n";
+	// }
+	
+	// out<<"</g></g></svg>";
 	out.close();
 
 }
@@ -151,7 +159,7 @@ int main(){
 	freopen("input.txt","r", stdin);
 	int n;std::cin>>n; //number of points
 	int flip;cin>>flip; //flip the input if anti clockwise
-	std::vector<pair<int,int>> vertices(n);
+	std::vector<pair<double,double>> vertices(n);
 	for(int i=0;i<n;i++){
 		cin>>vertices[i].first>>vertices[i].second;
 	}
@@ -166,28 +174,23 @@ int main(){
 
 	set<face*> faces;
 	faces.insert(v0->inc_edge->left);
-	visualize(faces,"input.svg");
-
-
-	cout<<endl;
+	visualize(faces,"in.txt");
 	int i =0;
 	while(n>3){
 
-		visualize(faces,"output"+ to_string(i) +".svg");
+		// visualize(faces,"output"+ to_string(i) +".svg");
 		i++;
-
-		cout<<"n = "<<n<<"\n";
 		vertex* v1 = prev_pol.back();
 		vertex* v2 = v1->inc_edge->dest;
 
-		cout<<"----v1 and v2-----\n";
-		print_vertex(v1);
-		print_vertex(v2);
-		cout<<"-----\n";
+		// cout<<"----v1 and v2-----\n";
+		// print_vertex(v1);
+		// print_vertex(v2);
+		// cout<<"-----\n";
 		cur_pol = {v1,v2};
 		vertex* candidate = v2->inc_edge->dest;
 
-		int xmin = min(v1->x,v2->x),xmax = max(v1->x,v2->x), ymin = min(v1->y,v2->y), ymax = max(v1->y,v2->y);
+		double xmin = min(v1->x,v2->x),xmax = max(v1->x,v2->x), ymin = min(v1->y,v2->y), ymax = max(v1->y,v2->y);
 
 		while(!check_reflex(cur_pol[cur_pol.size()-2],cur_pol[cur_pol.size()-1],candidate) && !check_reflex(cur_pol[cur_pol.size()-1],candidate,v1) && !check_reflex(candidate,v1,v2) && cur_pol.size()<n){
 			cur_pol.push_back(candidate);
@@ -195,17 +198,17 @@ int main(){
 			xmax = max(xmax, candidate->x);
 			ymin = min(ymin, candidate->y); 
 			ymax = max(ymax, candidate->y);
-			cout<<"---------CANDIDATE----------\n";
-			cout<<candidate->x<<" "<<candidate->y<<"\n";
+			// cout<<"---------CANDIDATE----------\n";
+			// cout<<candidate->x<<" "<<candidate->y<<"\n";
 			// notches.erase(candidate);
 			candidate = candidate->inc_edge->dest;
 		}
 
 		// cout<<cur_pol.size()<<"\n";
 
-		cout<<"-----BOUNDING RECT------\n";
-		printf("{%d,%d} {%d,%d}\n",xmin,ymin,xmax,ymax);
-		cout<<"----------\n";
+		// cout<<"-----BOUNDING RECT------\n";
+		// printf("{%d,%d} {%d,%d}\n",xmin,ymin,xmax,ymax);
+		// cout<<"----------\n";
 		if(cur_pol.size()==n){
 			faces.insert(v1->inc_edge->left);
 			faces.insert(v1->inc_edge->twin->left);
@@ -225,19 +228,19 @@ int main(){
 
 
 		while(!LPVS.empty()){
-			cout<<"--------LPVS-------"<<endl;
-			for(auto &x: LPVS) cout<<x->x<<" "<<x->y<<endl;
+			// cout<<"--------LPVS-------"<<endl;
+			// for(auto &x: LPVS) cout<<x->x<<" "<<x->y<<endl;
 			bool backward = false;
-			cout<<endl;
+			// cout<<endl;
 
 
 			while(!backward && !LPVS.empty()){
 				vertex* notch = LPVS.front();
 				do{
 					notch = LPVS.front();
-					print_vertex(notch);
+					//print_vertex(notch);
 					if(!(notch->x <= xmax && notch->x >= xmin && notch->y <= ymax && notch->y >= ymin)){
-						cout<<notch->x<<" "<<notch->y<<" "<<" is not in the rectangle!!!"<<endl;
+						//cout<<notch->x<<" "<<notch->y<<" "<<" is not in the rectangle!!!"<<endl;
 						LPVS.pop_front();
 					}
 				}while(!(notch->x <= xmax && notch->x >= xmin && notch->y <= ymax && notch->y >= ymin) && !LPVS.empty());
@@ -245,7 +248,7 @@ int main(){
 				if(!LPVS.empty()){
 				
 					if(check_in_pol(cur_pol,notch)){
-						cout<<notch->x<<" "<<notch->y<<" "<<" is in the polygon!!!"<<endl;
+						//cout<<notch->x<<" "<<notch->y<<" "<<" is in the polygon!!!"<<endl;
 
 						set<vertex*> VTR;
 						bool side = check_reflex(cur_pol.back(),notch,v1) || check_collinear(cur_pol.back(),notch,v1);
@@ -253,9 +256,9 @@ int main(){
 						for(auto v: cur_pol){
 							if((check_reflex(v,notch,v1)==side || check_collinear(v,notch,v1)) && v!=v1){
 								VTR.insert(v);
-								cout<<"in VTR "<<endl;
+								//cout<<"in VTR "<<endl;
 							}
-							print_vertex(v);
+							//print_vertex(v);
 						}
 
 						// cout<<"----VTR----"<<endl;
@@ -273,23 +276,23 @@ int main(){
 						// while(cur_pol.size()>2 && (check_reflex(cur_pol.back(),notch,v1)==side || check_collinear(cur_pol.back(),notch,v1))){
 						// 	cur_pol.pop_back();
 						// }
-					}else printf("Not in pol\n");
+					}
 					deque<vertex*> temp;
 					for(auto v: LPVS) if(v!=notch) temp.push_back(v);
 					LPVS = temp;
-				}else cout<<"LPVS is empty!!!!"<<endl;
+				}
 
 			}
 			
 			
 
 		}
-		cout<<"SIZEEEEEE: " << cur_pol.size()<<"-" << endl;
+		//cout<<"SIZEEEEEE: " << cur_pol.size()<<"-" << endl;
 		if(cur_pol.back()!=v2){
-			cout<<"----ADDING EDGE-----\n";
-			print_vertex(v1);
-			print_vertex(v2);
-			print_vertex(cur_pol.back());
+			//cout<<"----ADDING EDGE-----\n";
+			// print_vertex(v1);
+			// print_vertex(v2);
+			// print_vertex(cur_pol.back());
 			edge::add_edge(cur_pol.back(),v1);
 
 			v1->inc_edge->left->traverse_face();
@@ -299,20 +302,20 @@ int main(){
 
 
 			n = n - cur_pol.size() + 2;
-			cout << n << "\n";
+			//cout << n << "\n";
 			// cout<<"here\n";
 		}
 
 		prev_pol = cur_pol;
 
 	}
-	cout << "\n\n\n\n";
+	//cout << "\n\n\n\n";
 	for(auto f: faces) { //we n
-		cout<<f<<"*************\n";
+		//cout<<f<<"*************\n";
 		f->traverse_face();
 	}
 
-	visualize(faces,"output.svg");
+	visualize(faces,"output.txt");
 
 	cout<<"[~]Exiting...";
 }

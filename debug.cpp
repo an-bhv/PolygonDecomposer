@@ -85,11 +85,10 @@ bool check_in_pol(vector<vertex*> &cur_pol , vertex* point){
 		}
 		if(a->y <= point->y && b->y > point->y && !check_reflex(a, b, point)){
 			num_intersect++;
-			if(check_collinear(a, b, point)){
-				return true;
-			}
 		}
-			
+		if(a->y <= point->y && b->y >= point->y && check_collinear(a, b, point)){
+			return true;
+		}
 	}
 	return num_intersect%2 == 1;
 }

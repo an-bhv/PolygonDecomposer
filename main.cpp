@@ -154,11 +154,12 @@ void visualize(set<face*> faces,string name){
 
 
 
-int main(){
+int main(int argc, char* argv[]){
 
-	freopen("input.txt","r", stdin);
+	freopen(argv[1],"r", stdin);
 	int n;std::cin>>n; //number of points
-	int flip;cin>>flip; //flip the input if anti clockwise
+	// int flip;cin>>flip; //flip the input if anti clockwise
+	int flip = 0;
 	std::vector<pair<double,double>> vertices(n);
 	for(int i=0;i<n;i++){
 		cin>>vertices[i].first>>vertices[i].second;

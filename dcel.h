@@ -1,50 +1,63 @@
+/* 
+*	Anubhav Sharma (2020A7PS1892H)
+*	Sreeram Yerasani (2020A7PS0052H)
+*	Varun Vaddiraju (2020A7PS0173H)
+*	Rohith Paul (2020A7PS2044H)
+* 
+* dcel_HEADER_FILE
+----------------------------------------------*/
 #pragma once
 
-namespace dcel{
+namespace dcel
+{
+    /** Class protoypes for DCEL
+     */
+    class vertex;
+    class edge;
+    class face;
 
-	class vertex;
-	class edge;
-	class face;
+    /*! Vertex Class of a DCEL!*/
+    class vertex
+    {
+    public:
+        double x;    					/*!< x-coordinate of a vertex */
+        double y;    					/*!< y-coordinate of a vertex */
+        edge *inc_edge;        			/*!< an edge incident on the vertex */
 
-    class vertex{
-		public:
-			double x;
-			double y;
-			edge* inc_edge;
-			vertex(double x, double y);
-	};
-    class edge{
-		public:
-			vertex *org, *dest;
-			edge *twin, *next, *prev;
-			face *left;
+        vertex(double x, double y);		//!< constructor with two input for the vertex
+    };
 
-			static edge* create_edge(vertex *u, vertex *v);
+    /*! Edge Class of a DCEL!*/
+    class edge
+    {
+    public:
+        vertex *org;			/*!< source of an edge*/
+		vertex *dest;        	/*!< destination of an edge*/
+        edge *twin;				/*!< twin edge linked to an edge*/
+		edge *next;				/*!< next edge linked to an edge*/
+		edge *prev;				/*!< previous edge linked to an edge*/
+        face *left;				/*!< face incident to an edge*/
 
-			static void link_edge(edge* e1, edge* e2);
+        static edge *create_edge(vertex *u, vertex *v);		//!< static method for creating an edge-twin pair
 
-			static void add_edge(vertex* u, vertex* v);
+        static void link_edge(edge *e, edge *f);			//!< static method for linking two consecutive edges
 
-			static face* remove_edge(edge* e);
+        static void add_edge(vertex *u, vertex *v);			//!< static method for creating a diagnol between two vertices
 
-			edge(vertex *u, vertex *v);
-	};
+        static face *remove_edge(edge *e);					//!< static method for removing a diagnol between two vertices
 
-    class face{
-		public:
-			edge *inc_edge;
-			
-			void traverse_face();
-			face(edge* e);
-	};
-	
+        edge(vertex *u, vertex *v);							//!< constructor with two endpoints for an edge
+    };
+
+    /*! Face Class of a DCEL!*/
+    class face
+    {
+    public:
+        edge *inc_edge;			/*!< edge incident to a face*/
+
+        void traverse_face();	//!< method to link a face to all incident edges
+
+        face(edge *e);			//!< constructor with a single incident edge to the face
+    };
+
 }
-
-
-/*
-
-	adding new edges -> modify faces and all 
-	check angle -> will use the same logic to check if convex polygon and to eliminate vertex if notch -> basically cross product thingy
-	remove edge -> optional
-
-*/

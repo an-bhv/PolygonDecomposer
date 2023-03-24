@@ -1,5 +1,8 @@
 # Convex Decomposition of Polygons
-*Design and Analysis of Algorithms: Assignment 1*
+Design and Analysis of Algorithms: Assignment 1
+
+
+
 
 In this assignment we have implemented the decomposition algorithm MP1 as well as the merging algorithm as described in the paper:
 
@@ -31,8 +34,7 @@ We visualize below what the algorithm produces for different test cases. We have
 
 ## Computational Results
 
-All your files and folders are presented as a tree in the file explorer. You can switch from one to another by clicking a file in the tree.
-
+We worked with a dataset which had maps of countries as polygons. For our Time analysis we have split the set into 6 categories mentioned below. 
 
 | Vertices | Notches | MP1 Time (ms) | MP1 Polygons | Merging Time (ms) | Merged Polygons |
 |------------------|----------------|---------------|---------------|---------------|---------------|
@@ -44,7 +46,20 @@ All your files and folders are presented as a tree in the file explorer. You can
 |100 - 300 | (83.36364, 28.3241) | (1.9141, 0.871116) | (92.27273, 29.52657) | (0.017009, 0.004499)| (67.09091, 21.13033) |
 
 
-## Doxygen Documentation
+Detailed computational data can be obtained from the following csv:
 
-You can rename the current file by clicking the file name in the navigation bar or by clicking the *Rename* button in the file explorer.
+https://docs.google.com/spreadsheets/d/1B414KaTXBl74Txg14dLtQrlSfIXwlwYMle4JyDQFvgo/edit?usp=sharing
 
+### MORE EXAMPLES
+
+| Original Polygon | Before Merging | After Merging |
+|------------------|----------------|---------------|
+|         ![enter image description here](https://i.ibb.co/nBzmJXj/in.png)         |         ![enter image description here](https://i.ibb.co/4fkt8S9/output.png)       |         ![enter image description here](https://i.ibb.co/jV3cMDt/merged.png)      |
+|![enter image description here](https://i.ibb.co/X3vd3KZ/in.png) |![enter image description here](https://i.ibb.co/484JSbq/output.png) |![enter image description here](https://i.ibb.co/gmZ4ZNC/merged.png)|
+|![enter image description here](https://i.ibb.co/8xgxBKv/in.png)|![enter image description here](https://i.ibb.co/342Z83G/output.png)|![enter image description here](https://i.ibb.co/5hV83pk/merged.png)|
+
+### Team Members
+ - Anubhav Sharma (2020A7PS1892H)
+ - Sreeram Yerasani (2020A7PS0052H)
+ - Varun Vaddiraju (2020A7PS0173H)
+ - Rohith Paul (2020A7PS2044H)

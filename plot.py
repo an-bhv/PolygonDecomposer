@@ -20,6 +20,7 @@ for path in inputs:
 			x, y = map(float, line.split(','))
 			xs.append(x)
 			ys.append(y)
+	plt.title(path)
 	plt.fill(xs, ys, edgecolor='black', linewidth=0.5)
 	plt.savefig(path2, dpi=1200, bbox_inches='tight', pad_inches=0.1)
 	plt.show()

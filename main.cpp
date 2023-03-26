@@ -361,6 +361,8 @@ int main()
 		 * final decomposition is done.
 		 */
 		prev_pol = cur_pol;
+
+		visualize(faces, "iterations\\" + to_string(i) + ".txt");
 	}
 
 	/**

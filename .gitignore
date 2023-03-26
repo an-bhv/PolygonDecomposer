@@ -1,0 +1,10 @@
+.cph
+.vscode
+.vs
+**.o
+**.exe
+*.txt
+*.svg
+*.png
+tempCodeRunnerFile.cpp
+/doxygen

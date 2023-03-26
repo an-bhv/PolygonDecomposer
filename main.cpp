@@ -361,8 +361,12 @@ int main()
 		 * final decomposition is done.
 		 */
 		prev_pol = cur_pol;
-
-		visualize(faces, "iterations\\" + to_string(i) + ".txt");
+		string iter = to_string(i);
+		reverse(iter.begin(), iter.end());
+		while(iter.size() < 5)
+			iter += "0";
+		reverse(iter.begin(), iter.end());
+		visualize(faces, "iterations\\" + iter + ".txt");
 	}
 
 	/**

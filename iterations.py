@@ -27,3 +27,9 @@ for filename in os.listdir(directory):
     plt.title(str(filename))
     plt.show()
 
+
+
+for filename in os.listdir(directory):
+    #delete the file
+    path = os.path.join(directory,filename)
+    os.remove(path)
